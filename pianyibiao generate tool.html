@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<title>生成 offsetTable.js（范围 1..25，唯一、随机，行尾逗号）</title>
+<style>
+  body { font-family: system-ui, sans-serif; padding: 16px; }
+  button { padding: 8px 12px; }
+  pre { white-space: pre-wrap; font-family: monospace; margin-top: 12px; max-height: 60vh; overflow: auto; border: 1px solid #ddd; padding: 8px; }
+</style>
+<h1>生成 offsetTable.js</h1>
+<p>数组长度 5，数值范围 1..25；每组内不重复，跨全部键也唯一；每行末尾带逗号。</p>
+<button id="btn">生成并下载 offsetTable.js</button>
+<pre id="preview"></pre>
+<script>
+// FNV-1a 哈希：把键名稳定映射到 32 位种子
+function hashSeed(str) {
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+// splitmix32 伪随机数生成器（可重复）
+function splitmix32(seed) {
+  return function() {
+    seed = (seed + 0x9E3779B9) >>> 0;
+    let x = seed;
+    x ^= x >>> 16; x = Math.imul(x, 0x85ebca6b);
+    x ^= x >>> 13; x = Math.imul(x, 0xc2b2ae35);
+    x ^= x >>> 16;
+    return (x >>> 0) / 4294967296; // 0..1
+  };
+}
+
+// Fisher–Yates 洗牌
+function shuffle(arr, rng) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    const t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+  }
+}
+
+// 生成唯一且不规律的数组（每行末尾逗号）
+function buildLines(sequenceLength = 5, maxValue = 25) {
+  if (sequenceLength > maxValue) {
+    throw new Error('sequenceLength 必须 <= maxValue');
+  }
+  const letters = 'abcdefghijklmnopqrstuvwxyz';
+  const lines = [];
+  const used = new Set(); // 记录已用的数组签名，确保跨键唯一
+
+  for (let i = 0; i < letters.length; i++) {
+    for (let j = 0; j < letters.length; j++) {
+      for (let k = 0; k < letters.length; k++) {
+        const key = letters[i] + letters[j] + letters[k];
+        let salt = 0, arr, sig;
+        while (true) {
+          const rng = splitmix32(hashSeed(key + ':' + salt));
+          const pool = Array.from({ length: maxValue }, (_, t) => t + 1); // 1..25
+          shuffle(pool, rng);
+          arr = pool.slice(0, sequenceLength); // 取前 5 个，保证不重复
+          sig = arr.join(','); // 用字符串签名去重
+          if (!used.has(sig)) { used.add(sig); break; }
+          salt++; // 极少碰撞时加盐重试
+        }
+        lines.push(`"${key}": [${arr.join(', ')}],`);
+      }
+    }
+  }
+  return lines;
+}
+
+document.getElementById('btn').onclick = () => {
+  const lines = buildLines(5, 25); // 这里设置为 1..25
+  const content = `export const offsetTable = {\n${lines.map(l => '  ' + l).join('\n')}\n};\n`;
+
+  const blob = new Blob([content], { type: 'text/javascript' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'offsetTable.js';
+  a.click();
+  URL.revokeObjectURL(a.href);
+
+  // 预览前 100 行
+  document.getElementById('preview').textContent = lines.slice(0, 100).join('\n') + '\n...';
+};
+</script>
+</html>
+
+备注：
+- 现在的取值范围是 1..25；若需调整，改 buildLines 的第二个参数即可。
+- 这是 JavaScript 对象字面量，属性行尾逗号在 JS 中有效；如果需要 JSON，去掉最后一个属性的逗号。

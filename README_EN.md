@@ -1,6 +1,6 @@
 # Multi-Table + Multi-Offset Extended Caesar Cipher
 
-[**🌐 Live Demo (More Secure!)**](https://www.kisara.art/?id=14)
+[**🌐 Live Demo **](https://www.kisara.art/?id=14)
 
 [中文版](./README.md) | **English**
 

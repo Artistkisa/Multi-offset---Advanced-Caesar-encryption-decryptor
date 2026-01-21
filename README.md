@@ -1,16 +1,62 @@
-# Multi-offset---Advanced-Caesar-encryption-decryptor
-This expanded version of the Caesar Code enhances the complexity and security of the traditional Caesar Code by introducing dynamic offset sequences and displacement steps. Each word uses a different displacement pattern when encrypting, making the encryption results more diverse and difficult to crack.
+# 多表替换 + 多次偏移型凯撒加密器 (Extended Caesar Cipher)
 
-Encryption Process:
+[**🌐 在线演示地址**]([(https://www.kisara.art/?id=14))
 
-Select an offset sequence: Choose an offset sequence for each word (e.g. (fictional) aba": [11, 3, 8, 18, 9]), which determines how the letters are displaced.
+这是一个增强版的凯撒密码实现。通过引入**动态偏移序列**和**多表替换**机制，解决了传统凯撒密码（单表替换）容易被频率分析破解的问题。
 
-Apply Displacement Steps: For each letter in the word, apply the displacement steps in the offset sequence in turn. If the word length exceeds the length of the step array, those steps are cycled.
+---
 
-Generate ciphertext: Each encrypted word is followed by a corresponding offset sequence code for identification during decryption.
+## 📖 项目简介
 
-Handling Non-Alphabetic Characters: Non-alphabetic characters are not involved in encryption, leaving them as is.
+传统的凯撒密码对整段文本使用单一的固定位移量，而本加密器为每个单词随机分配一个独立的“偏移序列”。这意味着即使同一个字母在不同的单词中出现，其加密后的结果也可能完全不同。
 
-Features: Dynamic encryption makes each word use an independent offset sequence, adding complexity to the encryption. Achieve diverse encryption results through different displacement step combinations. The ciphertext contains offset sequence codes, ensuring that the decryption process is straightforward and accurate. This encryption method is suitable for scenarios that require enhanced security while maintaining the ease of implementation of Caesar Code.
+这种加密方式在保持凯撒密码轻量、易实现的优点的同时，显著提升了针对简单统计学分析的防御能力，非常适合用于 SNS 社交平台的信息加密或解密游戏。
 
-Tips: This tool's dependency on JavaScript is not carried outConfusion, because it is used to open source to display code composition. Although it's enough to post on SNS or play a decryption game (when others don't know about this site) lol. If you want to actually use simple text encryption, pleaseRegenerate the offset sequenceWithDisplacement step table, and utilize the tool for JavaScript codeConfusion。
+---
+
+## ⚙️ 加密原理
+
+加密过程遵循以下逻辑：
+
+1.  **选择偏移序列**：为待加密的每个单词随机选择一个预定义的偏移序列（例如：`"aba": [11, 3, 8, 18, 9]`）。
+2.  **应用循环位移**：
+    * 单词中的第 1 个字母根据序列值偏移；
+    * 如果单词长度超过序列长度，则循环使用该序列。
+3.  **生成密文**：在加密后的每个单词后面附加上对应的偏移序列标识码，用于解密时识别。
+4.  **处理非字母字符**：数字、空格及特殊符号不参与加密，保持原样。
+
+---
+
+## ✨ 功能特点
+
+* **动态加密**：每次对相同文本进行加密，生成的密文结果都不同。
+* **多表替换**：通过多组位移步长组合，打破了传统凯撒密码的固定频率特征。
+* **解密准确**：密文中包含偏移序列标识，确保解密过程简单且准确。
+* **安全性可定制**：用户可以自行更换底层的**屏蔽词**映射表和位移步长。
+
+---
+
+## 🚀 使用与安全建议
+
+> [!TIP]
+> **安全性提示**
+> 本项目的公开脚本未进行混淆。如果您希望将其用于真正的个人隐私加密，建议：
+> 1.  **更新屏蔽词**：重新定义源码中的**屏蔽词**映射表。
+> 2.  **自定义步长**：更换位移步长的数值组合。
+> 3.  **代码混淆**：利用混淆工具对核心 JavaScript 进行处理，防止他人通过阅读源码直接推导加密规则。
+
+---
+
+## 📸 演示效果
+
+* **加密/解密展示**：
+    ![加密演示](https://www.kisara.art/zb_users/upload/2025/11/202511031762137160271995.png)
+* **动态偏移特性**（相同原文，不同结果）：
+    ![动态偏移演示](https://www.kisara.art/zb_users/upload/2025/11/202511031762137190752069.png)
+
+---
+
+## 🛠️ 技术实现
+
+* **HTML5 / CSS3**：响应式界面设计。
+* **JavaScript (ES6)**：核心动态加密算法。
